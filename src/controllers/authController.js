@@ -7,9 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Sign Up
 exports.signup = async (req, res) => {
   try {
-    const { fullName, email, password, phoneNumber, address } = req.body;
-
-    console.log({ fullName, email, password, phoneNumber, address });
+    const { fullName, email, password, phoneNumber, address, role } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -26,14 +24,20 @@ exports.signup = async (req, res) => {
       password,
       phoneNumber,
       address,
+      role,
     });
 
     await user.save();
 
     // Generate token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        role: user.role,
+      },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
     res.status(201).json({
       message: "User created successfully",
@@ -44,6 +48,8 @@ exports.signup = async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         address: user.address,
+        role: user.role,
+        isVerified: user.isVerified,
       },
     });
   } catch (error) {
@@ -70,10 +76,22 @@ exports.signin = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    // Check if user is verified (except for admin)
+    if (user.role !== "admin" && !user.isVerified) {
+      return res
+        .status(403)
+        .json({ message: "Your account is pending verification by admin" });
+    }
+
     // Generate token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        role: user.role,
+      },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
     res.json({
       message: "Logged in successfully",
@@ -84,6 +102,8 @@ exports.signin = async (req, res) => {
         email: user.email,
         phoneNumber: user.phoneNumber,
         address: user.address,
+        role: user.role,
+        isVerified: user.isVerified,
       },
     });
   } catch (error) {

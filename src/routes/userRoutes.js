@@ -12,4 +12,8 @@ router.get("/:id", userController.getUserById);
 router.put("/:id", userController.updateUser);
 router.delete("/:id", userController.deleteUser);
 
+// Admin routes for user verification
+router.get("/admin/pending", userController.getPendingUsers);
+router.post("/admin/verify/:userId", userController.verifyUser);
+
 module.exports = router;

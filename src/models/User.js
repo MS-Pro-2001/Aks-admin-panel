@@ -41,6 +41,14 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "client"],
       default: "client",
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verifyStatus: {
+      type: String,
+      default: "pending",
+    },
   },
   {
     timestamps: true, // This will automatically add createdAt and updatedAt fields
