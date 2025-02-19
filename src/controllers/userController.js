@@ -16,17 +16,6 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// Create a new user (public route - used for signup)
-exports.createUser = async (req, res) => {
-  try {
-    const user = new User(req.body);
-    const newUser = await user.save();
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
 // Get user by ID
 exports.getUserById = async (req, res) => {
   try {

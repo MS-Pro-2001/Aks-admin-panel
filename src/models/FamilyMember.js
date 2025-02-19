@@ -24,6 +24,10 @@ const familyMemberSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    familyPhoto: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,

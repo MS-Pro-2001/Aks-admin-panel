@@ -3,13 +3,13 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const auth = require("../middleware/auth");
 
-// Public routes
-router.post("/", userController.createUser);
+// All routes are protected
+router.use(auth);
 
-// Protected routes - require authentication
-router.get("/", auth, userController.getUsers);
-router.get("/:id", auth, userController.getUserById);
-router.put("/:id", auth, userController.updateUser);
-router.delete("/:id", auth, userController.deleteUser);
+// Protected routes
+router.get("/", userController.getUsers);
+router.get("/:id", userController.getUserById);
+router.put("/:id", userController.updateUser);
+router.delete("/:id", userController.deleteUser);
 
 module.exports = router;

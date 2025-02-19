@@ -4,7 +4,8 @@ const User = require("../models/User");
 // Create a new family member
 exports.createFamilyMember = async (req, res) => {
   try {
-    const { fullName, relationship, dateOfBirth, phoneNumber } = req.body;
+    const { fullName, relationship, dateOfBirth, phoneNumber, familyPhoto } =
+      req.body;
     const userId = req.user.userId;
 
     const familyMember = new FamilyMember({
@@ -12,6 +13,7 @@ exports.createFamilyMember = async (req, res) => {
       relationship,
       dateOfBirth,
       phoneNumber,
+      familyPhoto,
       userId,
     });
 
