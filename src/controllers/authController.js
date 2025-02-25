@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const SocketService = require("../services/socketService");
 
 // JWT secret key - should be in environment variables
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -38,6 +39,16 @@ exports.signup = async (req, res) => {
       JWT_SECRET,
       { expiresIn: "24h" }
     );
+
+    // Emit new user registration event
+    SocketService.broadcastEvent("new-user-registered", {
+      userId: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      verifyStatus: user.verifyStatus,
+      isVerified: user.isVerified,
+    });
 
     res.status(201).json({
       message: "User created successfully",

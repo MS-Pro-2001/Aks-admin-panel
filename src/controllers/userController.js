@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const SocketService = require("../services/socketService");
 
 // Get all users (admin only)
 exports.getUsers = async (req, res) => {
@@ -9,8 +10,30 @@ exports.getUsers = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Admin only." });
     }
 
-    const users = await User.find();
-    res.status(200).json(users);
+    // Get status from query params
+    const { status } = req.query;
+
+    // Prepare filter based on status
+    let filter = {};
+    if (status && status !== "all") {
+      filter.verifyStatus = status;
+    }
+
+    // Get users based on filter
+    const users = await User.find(filter);
+
+    // Get counts for each status
+    const counts = {
+      total: await User.countDocuments(),
+      pending: await User.countDocuments({ verifyStatus: "pending" }),
+      approved: await User.countDocuments({ verifyStatus: "verified" }),
+      rejected: await User.countDocuments({ verifyStatus: "rejected" }),
+    };
+
+    res.status(200).json({
+      counts,
+      data: users,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -125,12 +148,39 @@ exports.verifyUser = async (req, res) => {
       user.isVerified = true;
       user.verifyStatus = "verified";
       await user.save();
+
+      // Emit status update events
+      SocketService.emitStatusUpdate({
+        userId: user._id,
+        status: "verified",
+        message: "User verification approved",
+      });
+
+      // Notify the specific user
+      SocketService.emitToUser(user._id.toString(), "verification-status", {
+        status: "verified",
+        message: "Your account has been verified",
+      });
+
       res.status(200).json({ message: "User verified successfully", user });
     } else if (action === "reject") {
-      // await user.remove();
       user.isVerified = false;
       user.verifyStatus = "rejected";
       await user.save();
+
+      // Emit status update events
+      SocketService.emitStatusUpdate({
+        userId: user._id,
+        status: "rejected",
+        message: "User verification rejected",
+      });
+
+      // Notify the specific user
+      SocketService.emitToUser(user._id.toString(), "verification-status", {
+        status: "rejected",
+        message: "Your account verification was rejected",
+      });
+
       res
         .status(200)
         .json({ message: "User rejected and removed successfully", user });
