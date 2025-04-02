@@ -8,11 +8,16 @@ const User = require("./models/User");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: "*",
+  origin: ["https://admin-panel-fe-s7g9.onrender.com"], // Allow only frontend domain
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
+
+app.use(cors(corsOptions));
+
+// Handle Preflight requests explicitly
+app.options("*", cors(corsOptions));
 
 const app = express();
 const httpServer = createServer(app);
@@ -48,10 +53,6 @@ io.use(async (socket, next) => {
     next(new Error("Authentication error: " + error.message));
   }
 });
-
-// CORS configuration
-
-app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
