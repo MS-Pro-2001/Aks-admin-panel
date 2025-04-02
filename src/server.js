@@ -17,7 +17,19 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Handle Preflight requests explicitly
-app.options("*", cors(corsOptions));
+app.options("*", (req, res) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://admin-panel-fe-s7g9.onrender.com"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.status(200).end();
+});
 
 const app = express();
 const httpServer = createServer(app);
