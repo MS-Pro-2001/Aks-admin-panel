@@ -7,17 +7,17 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 require("dotenv").config();
 
+const corsOptions = {
+  origin: ["http://localhost:5173", "https://admin-panel-fe-s7g9.onrender.com"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-  cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://admin-panel-fe-s7g9.onrender.com",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 
 // Export socket instance for use in other files
@@ -50,12 +50,9 @@ io.use(async (socket, next) => {
 });
 
 // CORS configuration
-const corsOptions = {
-  origin: ["http://localhost:5173", "https://admin-panel-fe-s7g9.onrender.com"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
+
+app.options("*", cors(corsOptions));
+
 app.use(cors(corsOptions));
 
 // Middleware
