@@ -8,7 +8,7 @@ const User = require("./models/User");
 require("dotenv").config();
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://admin-panel-fe-s7g9.onrender.com"],
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -50,8 +50,6 @@ io.use(async (socket, next) => {
 });
 
 // CORS configuration
-
-app.options("*", cors(corsOptions));
 
 app.use(cors(corsOptions));
 
